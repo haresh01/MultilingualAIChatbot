@@ -1,0 +1,28 @@
+# backend.py
+import os
+from groq import Groq
+from dotenv import load_dotenv
+
+load_dotenv()
+
+class MultilingualChatbot:
+    def __init__(self):
+        api_key = os.getenv("GROQ_API_KEY")
+        if not api_key:
+            raise ValueError("GROQ_API_KEY not found in environment variables")
+        self.client = Groq(api_key=api_key)
+    
+    def chat(self, message, language="English", history=[]):
+        messages = [
+            {"role": "system", "content": f"Reply in {language}"}
+        ]
+        messages.extend(history)
+        messages.append({"role": "user", "content": message})
+        
+        response = self.client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=messages,
+            temperature=0.7
+        )
+        
+        return response.choices[0].message.content
